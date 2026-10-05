@@ -1,1 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pressure and Head Explorer</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&display=swap">
+<style>
+:root{--bg:#e9f1f5;--card:#fff;--ink:#0b2a3d;--mute:#4d6b7c;--line:#c5d5de;--water:#1e8bd0;--water2:#7cc4ee;--glass:#f4fafd;--navy:#0b3a57;--g:#1b8a4b;--y:#b98700;--r:#d13b3b;--h:#3b63c9;--ground:#8a7a5c;--sky:#dcebf3;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a1a24;--card:#10293a;--ink:#e6f1f7;--mute:#9db8c7;--line:#27485c;--water:#3aa3e6;--water2:#8fd0f5;--glass:#173549;--navy:#0a2434;--g:#4cc783;--y:#ecc04a;--r:#ff7b7b;--h:#8aa8ff;--ground:#5b5035;--sky:#12304380}}
+:root[data-theme="dark"]{--bg:#0a1a24;--card:#10293a;--ink:#e6f1f7;--mute:#9db8c7;--line:#27485c;--water:#3aa3e6;--water2:#8fd0f5;--glass:#173549;--navy:#0a2434;--g:#4cc783;--y:#ecc04a;--r:#ff7b7b;--h:#8aa8ff;--ground:#5b5035;--sky:#12304380}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 18px/1.4 Barlow,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+header{background:var(--navy);color:#fff;padding:14px 24px;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between}
+h1{margin:0;font-size:30px;font-weight:700;letter-spacing:.2px}
+nav{display:flex;gap:6px;flex-wrap:wrap}
+nav button,.btn{font:600 18px Barlow,system-ui,sans-serif;border:2px solid rgba(255,255,255,.35);background:transparent;color:#fff;padding:10px 18px;border-radius:10px;cursor:pointer}
+nav button[aria-selected=true]{background:#fff;color:#0b3a57;border-color:#fff}
+.btn.solid{background:var(--water);border-color:var(--water);color:#fff}
+button:focus-visible,input:focus-visible{outline:3px solid #ffbf3c;outline-offset:2px}
+main{max-width:1280px;margin:0 auto;padding:20px 20px 40px}
+section[hidden]{display:none}
+h2{font-size:30px;margin:4px 0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.ctl{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;margin-bottom:16px}
+.ctl label{font-weight:700;font-size:22px}
+.ctl output{font-weight:700;font-size:28px;min-width:110px;text-align:right;color:var(--water)}
+input[type=range]{width:100%;height:40px;accent-color:var(--water);cursor:pointer}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.tankcol{text-align:center}
+.tankcol h3{margin:0 0 4px;font-size:24px}
+.big{font-size:34px;font-weight:700;line-height:1.1}
+.sub{color:var(--mute);font-size:17px}
+.read{display:flex;justify-content:space-around;gap:8px;margin-top:4px}
+.take{margin-top:16px;background:var(--navy);color:#fff;border-left:10px solid var(--water2);border-radius:12px;padding:18px 22px;font-size:26px;font-weight:700}
+svg{display:block;width:100%;height:auto}
+.glass{fill:var(--glass);stroke:var(--ink);stroke-width:3}
+.wt{fill:var(--water);fill-opacity:.85}
+.wt2{fill:var(--water2);fill-opacity:.9}
+.tick{stroke:var(--mute);stroke-width:1.5}
+.lbl{fill:var(--mute);font:600 14px Barlow,sans-serif}
+.gt{fill:var(--ink);font:700 22px Barlow,sans-serif}
+.gtrack{fill:none;stroke:var(--line);stroke-width:14;stroke-linecap:round}
+.needle{stroke:var(--r);stroke-width:5;stroke-linecap:round}
+.two{display:grid;grid-template-columns:minmax(260px,1fr) 1.3fr;gap:16px}
+.eq{font-size:34px;font-weight:700;text-align:center;padding:14px;background:var(--bg);border-radius:12px;margin:12px 0}
+.eq b{color:var(--water)}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.chip{font:600 20px Barlow,sans-serif;padding:10px 14px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.chip.on{border-color:var(--water);background:var(--water);color:#fff}
+.cust{border-width:4px;text-align:center}
+.cust h3{margin:0;font-size:22px}
+.badge{display:inline-block;margin-top:2px;font-weight:700;font-size:20px}
+dialog{border:none;border-radius:16px;max-width:680px;width:92%;padding:28px;background:var(--card);color:var(--ink);font-size:24px}
+dialog::backdrop{background:rgba(5,20,30,.6)}
+dialog h2{margin-top:0}
+dialog li{margin:10px 0}
+@media (max-width:860px){.grid3,.two{grid-template-columns:1fr}.ctl{grid-template-columns:1fr auto}.ctl input{grid-column:1/-1}h1{font-size:24px}}
+</style>
+</head>
+<body>
+<header>
+<h1>Pressure and Head Explorer</h1>
+<nav role="tablist">
+<button role="tab" aria-selected="true" data-t="s1">Tank comparison</button>
+<button role="tab" aria-selected="false" data-t="s2">Head to pressure</button>
+<button role="tab" aria-selected="false" data-t="s3">Water tower</button>
+</nav>
+<div style="display:flex;gap:8px"><button class="btn" id="reset">Reset Scenario</button><button class="btn solid" id="learn">Show Key Learning Points</button></div>
+</header>
+<main>
+
+<section id="s1">
+<h2>Same depth, same pressure</h2>
+<div class="card">
+<div class="ctl"><label for="d1">Water Depth</label><input type="range" id="d1" min="0" max="100" step="0.5" value="50"><output id="d1o"></output></div>
+<div class="grid3" id="tanks"></div>
+<div class="take">Pressure is determined by water depth (head), not tank shape or volume.</div>
+</div>
+</section>
+
+<section id="s2" hidden>
+<h2>From head to pressure</h2>
+<div class="card two">
+<div>
+<svg viewBox="0 0 400 430" id="col" aria-label="Water column"></svg>
+</div>
+<div>
+<div class="ctl"><label for="d2">Water Depth</label><input type="range" id="d2" min="0" max="100" step="0.1" value="50"><output id="d2o"></output></div>
+<div class="ctl"><label for="pt">Measurement Point</label><input type="range" id="pt" min="0" max="100" step="1" value="100"><output id="pto" style="font-size:22px"></output></div>
+<div class="read">
+<div><div class="sub">Water depth</div><div class="big" id="r_d"></div></div>
+<div><div class="sub">Head at point</div><div class="big" id="r_h"></div></div>
+<div><div class="sub">Pressure</div><div class="big" id="r_p"></div></div>
+</div>
+<div class="eq" id="eq"></div>
+<div style="max-width:380px;margin:0 auto"><svg viewBox="0 0 220 150" id="g2"></svg></div>
+<div class="sub" style="margin-top:8px">Tap a reference point to set the depth:</div>
+<div class="chips" id="chips"></div>
+</div>
+</div>
+<div class="take">Every 2.31 feet of head adds 1 psi of pressure.</div>
+</section>
+
+<section id="s3" hidden>
+<h2>Elevation and pressure in a distribution system</h2>
+<div class="card">
+<div class="ctl"><label for="sur">Water Surface Elevation</label><input type="range" id="sur" min="700" max="1000" step="1" value="850"><output id="suro"></output></div>
+<div class="ctl"><label for="cust">Customer 2 Elevation</label><input type="range" id="cust" min="600" max="950" step="1" value="750"><output id="custo"></output></div>
+<svg viewBox="0 0 1000 470" id="tw" aria-label="Water tower and customers"></svg>
+<div class="grid3" id="cc" style="margin-top:12px"></div>
+<div class="sub" style="margin-top:10px;font-size:17px">Green: 40–80 psi &nbsp; Yellow: 20–39 psi &nbsp; Red: under 20 psi &nbsp; Blue: over 80 psi (high)</div>
+<div class="take">As elevation increases, available pressure decreases.</div>
+</div>
+</section>
+</main>
+
+<dialog id="dlg">
+<h2>Key Learning Points</h2>
+<ol>
+<li>Pressure comes from water depth.</li>
+<li>Equal depth produces equal pressure.</li>
+<li>Tank width does not determine pressure.</li>
+<li>Elevation difference creates pressure in distribution systems.</li>
+<li>Head and pressure are directly related.</li>
+</ol>
+<button class="btn solid" id="close" style="border-color:var(--water)">Close</button>
+</dialog>
+
+<script>
+const K=0.433,$=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg';
+const D={d1:50,d2:50,pt:100,sur:850,cust:750},T={...D},C={...D};
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const f1=n=>n.toFixed(1),css=v=>`var(--${v})`;
+
+/* gauge */
+const P=(a,r,cx=110,cy=100)=>{a*=Math.PI/180;return[cx+r*Math.sin(a),cy-r*Math.cos(a)]};
+function gaugeSVG(id,max,step){
+ const [x1,y1]=P(-120,80),[x2,y2]=P(120,80);let t='';
+ for(let v=0;v<=max;v+=step){const a=-120+240*v/max,[a1,b1]=P(a,66),[a2,b2]=P(a,74),[lx,ly]=P(a,50);
+  t+=`<line class="tick" x1="${a1}" y1="${b1}" x2="${a2}" y2="${b2}"/><text class="lbl" x="${lx}" y="${ly+5}" text-anchor="middle">${v}</text>`}
+ return `<path class="gtrack" d="M${x1} ${y1}A80 80 0 1 1 ${x2} ${y2}"/>${t}<g id="n_${id}"><line class="needle" x1="110" y1="100" x2="110" y2="34"/></g><circle cx="110" cy="100" r="8" fill="var(--ink)"/><text class="gt" id="t_${id}" x="110" y="138" text-anchor="middle"></text>`}
+function setG(id,psi,max){const a=-120+240*Math.min(psi/max,1);$('n_'+id).setAttribute('transform',`rotate(${a} 110 100)`);$('t_'+id).textContent=f1(psi)+' psi'}
+
+/* section 1 */
+const TK=[{n:'Tall Narrow Tank',w:90,dia:10},{n:'Medium Tank',w:190,dia:20},{n:'Short Wide Tank',w:280,dia:30}];
+$('tanks').innerHTML=TK.map((k,i)=>{const x=(300-k.w)/2;let ticks='';
+ for(let v=0;v<=100;v+=25)ticks+=`<line class="tick" x1="${x-10}" y1="${320-3*v}" x2="${x}" y2="${320-3*v}"/><text class="lbl" x="${x-14}" y="${325-3*v}" text-anchor="end">${v}</text>`;
+ return `<div class="card tankcol"><h3>${k.n}</h3><svg viewBox="0 0 300 340"><defs><clipPath id="c${i}"><rect x="${x+2}" y="20" width="${k.w-4}" height="298" rx="6"/></clipPath></defs>
+ <rect class="glass" x="${x}" y="18" width="${k.w}" height="302" rx="8"/>
+ <g clip-path="url(#c${i})"><rect class="wt" id="w${i}" x="${x}" width="${k.w}"/><path class="wt2" id="v${i}"/></g>
+ ${ticks}<text class="lbl" x="${x+k.w/2}" y="336" text-anchor="middle">${k.dia} ft diameter</text></svg>
+ <div class="read"><div><div class="sub">Head</div><div class="big" id="h${i}"></div></div><div><div class="sub">Pressure</div><div class="big" id="p${i}" style="color:var(--water)"></div></div></div>
+ <div class="sub" style="margin-top:6px">Volume: <span id="vol${i}"></span></div>
+ <div style="max-width:260px;margin:0 auto"><svg viewBox="0 0 220 150">${gaugeSVG('a'+i,50,10)}</svg></div></div>`}).join('');
+function wave(x,w,y,t,amp=3){let d=`M${x} ${y}`;for(let i=0;i<=24;i++){const px=x+w*i/24;d+=`L${px} ${y+amp*Math.sin(i*.9+t)}`}return d+`L${x+w} ${y+14}L${x} ${y+14}Z`}
+function r1(t){const d=C.d1;TK.forEach((k,i)=>{const x=(300-k.w)/2,y=320-3*d;
+ $('w'+i).setAttribute('y',y+4);$('w'+i).setAttribute('height',3*d+2);$('v'+i).setAttribute('d',d>0?wave(x,k.w,y,t):'');
+ $('h'+i).textContent=f1(d)+' ft';$('p'+i).textContent=f1(d*K)+' psi';
+ const gal=Math.PI*(k.dia/2)**2*d*7.48;$('vol'+i).textContent=(Math.round(gal/100)*100).toLocaleString()+' gal';setG('a'+i,d*K,50)})}
+
+/* section 2 */
+const REF=[[2.31,1],[23.1,10],[46.2,20],[69.3,30],[92.4,40]],CY=400,S=3.8;
+$('chips').innerHTML=REF.map(([f,p])=>`<button class="chip" data-f="${f}">${f} ft = ${p} psi</button>`).join('');
+$('chips').onclick=e=>{const f=e.target.dataset.f;if(f){T.d2=+f;$('d2').value=f}};
+$('g2').innerHTML=gaugeSVG('b',50,10);
+$('col').innerHTML=`<defs><clipPath id="cc2"><rect x="122" y="20" width="136" height="380" rx="6"/></clipPath></defs>
+<rect class="glass" x="120" y="18" width="140" height="384" rx="8"/>
+<g clip-path="url(#cc2)"><rect class="wt" id="cw" x="120"/><path class="wt2" id="cv"/></g>
+${REF.map(([f,p],i)=>`<g id="rf${i}"><line x1="120" x2="270" stroke="var(--ink)" stroke-dasharray="4 4" id="rl${i}"/><text class="lbl" id="rt${i}" x="274" font-size="15">${f} ft = ${p} psi</text></g>`).join('')}
+<line id="hl" x1="190" x2="190" stroke="var(--ink)" stroke-width="3"/><polygon id="ha" fill="var(--ink)"/>
+<circle id="pr" cx="190" r="16" fill="none" stroke="var(--r)" stroke-width="3"/><circle id="pc" cx="190" r="9" fill="var(--r)"/>
+<text class="lbl" id="hlab" x="12" font-size="17" style="font-weight:700"></text>`;
+function r2(t){const d=C.d2,y=CY-S*d,py=y+S*d*C.pt/100,hd=d*C.pt/100;
+ $('cw').setAttribute('y',y+4);$('cw').setAttribute('height',S*d+2);$('cv').setAttribute('d',d>0?wave(120,140,y,t):'');
+ REF.forEach(([f],i)=>{const yy=y+S*f,ok=f<=d;$('rl'+i).setAttribute('y1',yy);$('rl'+i).setAttribute('y2',yy);$('rt'+i).setAttribute('y',yy+5);$('rf'+i).style.opacity=ok?1:0});
+ $('hl').setAttribute('y1',y);$('hl').setAttribute('y2',py);$('ha').setAttribute('points',`184,${py-10} 196,${py-10} 190,${py}`);
+ $('pc').setAttribute('cy',py);$('pr').setAttribute('cy',py);$('pr').setAttribute('r',16+3*Math.sin(t*2));
+ const hl=$('hlab');hl.setAttribute('y',(y+py)/2+5);hl.textContent=hd>2?f1(hd)+' ft':'';
+ $('r_d').textContent=f1(d)+' ft';$('r_h').textContent=f1(hd)+' ft';$('r_p').textContent=f1(hd*K)+' psi';
+ $('eq').innerHTML=`${f1(hd)} ft × 0.433 = <b>${f1(hd*K)} psi</b>`;setG('b',hd*K,50);
+ document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',Math.abs(+c.dataset.f-d)<.3))}
+
+/* section 3 */
+const ey=e=>440-(e-560)/480*400,GX=[0,300,520,720,900,1000],GE=[700,695,680,0,830,840];
+const CU=[{n:'Customer 1',i:2},{n:'Customer 2',i:3},{n:'Customer 3',i:4}];
+$('cc').innerHTML=CU.map((c,i)=>`<div class="card cust" id="cd${i}"><h3>${c.n}</h3><div class="sub">Elevation <span id="ce${i}"></span> ft · Head <span id="ch${i}"></span> ft</div><div style="max-width:240px;margin:0 auto"><svg viewBox="0 0 220 150">${gaugeSVG('c'+i,175,25)}</svg></div><div class="badge" id="cs${i}"></div></div>`).join('');
+function stat(p){return p>80?['h','High pressure']:p>=40?['g','Good pressure']:p>=20?['y','Marginal pressure']:['r','Low pressure']}
+function r3(t){GE[3]=C.cust;const sy=ey(C.sur),gy=ey(700);
+ const pts=GX.map((x,i)=>`${x},${ey(GE[i])}`).join(' ');
+ const bot=Math.min(sy+64,gy-6);
+ let h=`<rect width="1000" height="470" fill="var(--sky)"/>
+ <polygon points="${pts} 1000,470 0,470" fill="var(--ground)"/>
+ <polyline points="${pts}" fill="none" stroke="var(--ink)" stroke-width="3"/>
+ <line x1="60" x2="1000" y1="${sy}" y2="${sy}" stroke="var(--water)" stroke-width="3" stroke-dasharray="10 7"/>
+ <text class="lbl" x="1000" y="${sy-8}" text-anchor="end" style="font-size:18px;font-weight:700;fill:var(--water)">Water surface ${Math.round(C.sur)} ft</text>
+ <rect x="102" y="${bot}" width="16" height="${Math.max(0,gy-bot)}" fill="var(--ink)"/>
+ <line x1="70" y1="${bot}" x2="86" y2="${gy+8}" stroke="var(--ink)" stroke-width="5"/><line x1="150" y1="${bot}" x2="134" y2="${gy+8}" stroke="var(--ink)" stroke-width="5"/>
+ <rect x="60" y="${sy-16}" width="100" height="${bot-sy+16}" rx="8" class="glass"/>
+ <rect x="62" y="${sy}" width="96" height="${Math.max(0,bot-sy-2)}" class="wt"/>
+ <path d="${wave(62,96,sy,t,2)}" class="wt2"/>
+ <text class="lbl" x="110" y="${gy+30}" text-anchor="middle" style="font-size:16px">Tower base 700 ft</text>`;
+ CU.forEach((c,i)=>{const x=GX[c.i],e=GE[c.i],y=ey(e),hd=Math.max(0,C.sur-e),p=hd*K,s=stat(p)[0];
+  h+=`<line x1="${x}" x2="${x}" y1="${y-34}" y2="${Math.min(y-34,sy)}" stroke="var(--${s})" stroke-width="4"/>
+  <polygon points="${x-8},${y-44} ${x+8},${y-44} ${x},${y-34}" fill="var(--${s})" opacity="${hd>0?1:0}"/>
+  <g><polygon points="${x-24},${y-14} ${x},${y-34} ${x+24},${y-14}" fill="var(--ink)"/><rect x="${x-18}" y="${y-14}" width="36" height="14" fill="var(--card)" stroke="var(--ink)" stroke-width="3"/></g>
+  <circle cx="${x+34}" cy="${y-22}" r="9" fill="var(--${s})"/>
+  <text class="lbl" x="${x}" y="${y+22}" text-anchor="middle" style="font-size:16px;fill:#fff;font-weight:700">${c.n}</text>`;
+  $('ce'+i).textContent=Math.round(e);$('ch'+i).textContent=f1(hd);setG('c'+i,p,175);
+  $('cs'+i).textContent=hd>0?stat(p)[1]:'No service';$('cs'+i).style.color=css(s);$('cd'+i).style.borderColor=css(s)});
+ $('tw').innerHTML=h}
+
+/* controls + loop */
+const lab={d1:v=>f1(v)+' ft',d2:v=>f1(v)+' ft',sur:v=>Math.round(v)+' ft',cust:v=>Math.round(v)+' ft'};
+function labels(){$('d1o').textContent=lab.d1(T.d1);$('d2o').textContent=lab.d2(T.d2);$('suro').textContent=lab.sur(T.sur);$('custo').textContent=lab.cust(T.cust);$('pto').textContent=T.pt+'% down'}
+['d1','d2','pt','sur','cust'].forEach(k=>$(k).addEventListener('input',e=>{T[k]=+e.target.value;labels()}));
+$('reset').onclick=()=>{Object.assign(T,D);['d1','d2','pt','sur','cust'].forEach(k=>$(k).value=D[k]);labels()};
+$('learn').onclick=()=>$('dlg').showModal();$('close').onclick=()=>$('dlg').close();
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));['s1','s2','s3'].forEach(s=>$(s).hidden=s!==b.dataset.t)});
+function frame(ms){const t=ms/700;for(const k in C){C[k]=RM?T[k]:(Math.abs(T[k]-C[k])<.005?T[k]:C[k]+(T[k]-C[k])*.14)}
+ const vis=s=>!$(s).hidden;if(vis('s1'))r1(t);if(vis('s2'))r2(t);if(vis('s3'))r3(t);requestAnimationFrame(frame)}
+labels();requestAnimationFrame(frame);
+</script>
+</body>
+</html>
 
